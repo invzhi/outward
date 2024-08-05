@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package outward.v1;
+
+import "google/api/annotations.proto";
+import "buf/validate/validate.proto";
+
+option go_package = "outward/v1";
+
+service WorkspaceService {
+  rpc CreateWorkspace(CreateWorkspaceRequest) returns (CreateWorkspaceResponse) {
+    option (google.api.http) = {
+      post: "/v1/workspaces"
+      body: "*"
+    };
+  }
+
+  rpc GetWorkspaceList(GetWorkspaceListRequest) returns (GetWorkspaceListResponse) {
+    option (google.api.http) = {
+      get: "/v1/workspaces"
+    };
+  }
+}
+
+enum WorkspaceRegion {
+  WORKSPACE_REGION_UNSPECIFIED = 0;
+  WORKSPACE_REGION_SINGAPORE = 1;
+}
+
+message Workspace {
+  int64 id = 1;
+  string name = 2;
+  WorkspaceRegion region = 3;
+}
+
+message CreateWorkspaceRequest {
+  string name = 1 [(buf.validate.field).string.min_len = 1];
+  WorkspaceRegion region = 2;
+}
+
+message CreateWorkspaceResponse {
+  Workspace workspace = 1;
+}
+
+message GetWorkspaceListRequest {}
+
+message GetWorkspaceListResponse {
+  repeated Workspace workspaces = 1;
+}

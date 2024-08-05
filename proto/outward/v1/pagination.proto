@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package outward.v1;
+
+option go_package = "outward/v1";
+
+message PageToken {
+  int32 page_size = 1;
+  int64 cursor = 2;
+}

@@ -1,0 +1,17 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    schema: "internal/sqlc/migrations"
+    queries: "internal/sqlc/sqlc.sql"
+    gen:
+      go:
+        package: "sqlc"
+        out: "internal/sqlc"
+        sql_package: "pgx/v5"
+        rename:
+          ids: "IDs"
+        overrides:
+          - db_type: "pg_catalog.timestamp"
+            go_type:
+              import: "time"
+              type: "Time"

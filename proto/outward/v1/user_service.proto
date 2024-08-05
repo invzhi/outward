@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+package outward.v1;
+
+import "google/api/annotations.proto";
+import "buf/validate/validate.proto";
+
+option go_package = "outward/v1";
+
+service UserService {
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
+    option (google.api.http) = {
+      post: "/v1/users"
+      body: "*"
+    };
+  }
+
+  rpc GetUserList(GetUserListRequest) returns (GetUserListResponse) {
+    option (google.api.http) = {
+      get: "/v1/users"
+    };
+  }
+
+  rpc CreateWorkspaceMember(CreateWorkspaceMemberRequest) returns (CreateWorkspaceMemberResponse) {
+    option (google.api.http) = {
+      post: "/v1/users/workspaces"
+      body: "*"
+    };
+  }
+
+  rpc Login(LoginRequest) returns (LoginResponse) {
+    option (google.api.http) = {
+      post: "/v1/users/login"
+      body: "*"
+    };
+  }
+
+  rpc Logout(LogoutRequest) returns (LogoutResponse) {
+    option (google.api.http) = {
+      post: "/v1/users/logout"
+      body: "*"
+    };
+  }
+}
+
+message User {
+  int64 id = 1;
+  string email = 2;
+  string first_name = 3;
+  string last_name = 4;
+}
+
+message CreateUserRequest {
+  string email = 1;
+  string first_name = 2;
+  string last_name = 3;
+  string password = 4;
+}
+
+message CreateUserResponse {
+  User user = 1;
+}
+
+message GetUserListRequest {
+  int32 page_size = 1 [(buf.validate.field).int32.gt = 0];
+  string page_token = 2;
+  int64 workspace_id = 3 [(buf.validate.field).int64.gt = 0];
+}
+
+message GetUserListResponse {
+  string next_page_token = 1;
+  repeated User users = 2;
+}
+
+enum WorkspaceRole {
+  WORKSPACE_ROLE_UNSPECIFIED = 0;
+  WORKSPACE_ROLE_ADMIN = 1;
+}
+
+message CreateWorkspaceMemberRequest {
+  int64 user_id = 1 [(buf.validate.field).int64.gt = 0];
+  int64 workspace_id = 2 [(buf.validate.field).int64.gt = 0];
+  WorkspaceRole role = 3;
+}
+
+message CreateWorkspaceMemberResponse {}
+
+message LoginRequest {
+  string email = 1 [(buf.validate.field).string = {
+    min_len: 1,
+    email: true
+  }];
+  string password = 2;
+}
+
+message LoginResponse {
+  string token = 1;
+}
+
+message LogoutRequest {}
+
+message LogoutResponse {}
