@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package outward.v1;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+
+option go_package = "outward/v1";
+
+service WorkspaceService {
+  rpc CreateWorkspace(CreateWorkspaceRequest) returns (Workspace) {
+    option (google.api.http) = {
+      post: "/v1/workspaces"
+      body: "*"
+    };
+  }
+
+  rpc GetWorkspaceList(GetWorkspaceListRequest) returns (GetWorkspaceListResponse) {
+    option (google.api.http) = {
+      get: "/v1/workspaces"
+    };
+  }
+}
+
+message Workspace {
+  string name = 1;
+  string region = 2;
+}
+
+message CreateWorkspaceRequest {
+  string name = 1 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+  string region = 2 [
+    (google.api.field_behavior) = REQUIRED
+  ];
+}
+
+message GetWorkspaceListRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message GetWorkspaceListResponse {
+  repeated Workspace workspaces = 1;
+  string next_page_token = 2;
+}

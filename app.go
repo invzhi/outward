@@ -10,25 +10,18 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/invzhi/outward/config"
+	"github.com/invzhi/outward/internal/api"
 	proto "github.com/invzhi/outward/proto/outward/v1"
 )
-
-type issueServer struct {
-	proto.UnimplementedIssueServiceServer
-}
-
-func (s *issueServer) GetIssue(ctx context.Context, req *proto.GetIssueRequest) (*proto.Issue, error) {
-	return &proto.Issue{Name: "Check boyd"}, nil
-}
 
 func httpServer(appctx *config.AppContext) (*http.Server, error) {
 	svr := grpc.NewServer()
 
-	server := &issueServer{}
-	proto.RegisterIssueServiceServer(svr, server)
+	workspaceServer := api.NewWorkspaceServer(appctx)
+	proto.RegisterWorkspaceServiceServer(svr, workspaceServer)
 
 	mux := runtime.NewServeMux()
-	err := proto.RegisterIssueServiceHandlerServer(context.Background(), mux, server)
+	err := proto.RegisterWorkspaceServiceHandlerServer(context.Background(), mux, workspaceServer)
 	if err != nil {
 		return nil, err
 	}
