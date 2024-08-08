@@ -7,8 +7,6 @@ package sqlc
 
 import (
 	"context"
-
-	"github.com/invzhi/outward/internal/id"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -17,7 +15,7 @@ VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING RETURNING id, created_at, email, 
 `
 
 type CreateUserParams struct {
-	ID        id.ID
+	ID        ID
 	Email     string
 	FirstName string
 	LastName  string
@@ -48,7 +46,7 @@ VALUES ($1, $2, $3) ON CONFLICT DO NOTHING RETURNING id, created_at, name, regio
 `
 
 type CreateWorkspaceParams struct {
-	ID     id.ID
+	ID     ID
 	Name   string
 	Region string
 }
@@ -71,8 +69,8 @@ VALUES ($1, $2) ON CONFLICT DO NOTHING
 `
 
 type CreateWorkspaceMemberParams struct {
-	WorkspaceID id.ID
-	UserID      id.ID
+	WorkspaceID ID
+	UserID      ID
 }
 
 func (q *Queries) CreateWorkspaceMember(ctx context.Context, arg CreateWorkspaceMemberParams) error {
@@ -109,7 +107,7 @@ ORDER BY "user".id DESC LIMIT $2
 `
 
 type GetWorkspaceMembersParams struct {
-	WorkspaceID id.ID
+	WorkspaceID ID
 	Limit       int32
 }
 
@@ -151,8 +149,8 @@ ORDER BY "user".id DESC LIMIT $1
 
 type GetWorkspaceMembersCParams struct {
 	Limit       int32
-	WorkspaceID id.ID
-	Cursor      id.ID
+	WorkspaceID ID
+	Cursor      ID
 }
 
 func (q *Queries) GetWorkspaceMembersC(ctx context.Context, arg GetWorkspaceMembersCParams) ([]User, error) {
@@ -191,7 +189,7 @@ ORDER BY workspace.id DESC LIMIT $2
 `
 
 type GetWorkspacesParams struct {
-	UserID id.ID
+	UserID ID
 	Limit  int32
 }
 

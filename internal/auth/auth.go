@@ -1,8 +1,10 @@
 package auth
 
-import "github.com/invzhi/outward/internal/id"
+import (
+	"github.com/invzhi/outward/internal/sqlc"
+)
 
-func CurrentUserID() (id.ID, error) {
+func CurrentUserID() (sqlc.ID, error) {
 	// TODO
-	return id.ID(1), nil
+	return sqlc.ID(1), nil
 }

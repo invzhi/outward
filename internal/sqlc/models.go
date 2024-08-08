@@ -7,61 +7,60 @@ package sqlc
 import (
 	"time"
 
-	"github.com/invzhi/outward/internal/id"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type EmailContent struct {
-	ID        id.ID
-	ProjectID id.ID
+	ID        ID
+	ProjectID ID
 	CreatedAt time.Time
 	Payload   string
 }
 
 type EmailLayout struct {
-	ID        id.ID
-	ProjectID id.ID
+	ID        ID
+	ProjectID ID
 	CreatedAt time.Time
 	Payload   string
 }
 
 type EmailTemplate struct {
-	ID        id.ID
-	ProjectID id.ID
+	ID        ID
+	ProjectID ID
 	CreatedAt time.Time
 	Payload   string
 }
 
 type EmailTemplateHistory struct {
-	ID              id.ID
-	EmailTemplateID id.ID
-	ProjectID       id.ID
+	ID              ID
+	EmailTemplateID ID
+	ProjectID       ID
 	CreatedAt       time.Time
 	Payload         string
 }
 
 type Environment struct {
-	ID        id.ID
-	ProjectID id.ID
+	ID        ID
+	ProjectID ID
 	CreatedAt time.Time
 	Name      string
 }
 
 type Project struct {
-	ID          id.ID
-	WorkspaceID id.ID
+	ID          ID
+	WorkspaceID ID
 	CreatedAt   time.Time
 	Name        string
 }
 
 type ProjectMember struct {
-	ProjectID id.ID
-	UserID    id.ID
+	ProjectID ID
+	UserID    ID
 	Role      string
 }
 
 type User struct {
-	ID        id.ID
+	ID        ID
 	CreatedAt time.Time
 	Email     string
 	FirstName string
@@ -70,14 +69,14 @@ type User struct {
 }
 
 type Workspace struct {
-	ID        id.ID
+	ID        ID
 	CreatedAt time.Time
 	Name      string
 	Region    string
 }
 
 type WorkspaceMember struct {
-	WorkspaceID id.ID
-	UserID      id.ID
+	WorkspaceID ID
+	UserID      ID
 	Role        string
 }

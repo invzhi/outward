@@ -6,7 +6,6 @@ import (
 	"github.com/samber/lo"
 
 	"github.com/invzhi/outward/config"
-	"github.com/invzhi/outward/internal/id"
 	"github.com/invzhi/outward/internal/sqlc"
 	proto "github.com/invzhi/outward/proto/outward/v1"
 )
@@ -22,7 +21,7 @@ func NewWorkspaceServer(appctx *config.AppContext) *WorkspaceServer {
 
 func (s *WorkspaceServer) CreateWorkspace(ctx context.Context, req *proto.CreateWorkspaceRequest) (*proto.Workspace, error) {
 	workspace, err := s.Queries.CreateWorkspace(ctx, sqlc.CreateWorkspaceParams{
-		ID:     id.New(),
+		ID:     sqlc.NewID(),
 		Name:   req.Name,
 		Region: req.Region,
 	})

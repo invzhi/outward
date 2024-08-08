@@ -13,11 +13,9 @@ sql:
         overrides:
           - db_type: "pg_catalog.int8"
             go_type:
-              import: "github.com/invzhi/outward/internal/id"
               type: "ID"
           - db_type: "pg_catalog.int8"
             go_type:
-              import: "github.com/invzhi/outward/internal/id"
               type: "NullID"
             nullable: true
           - db_type: "pg_catalog.timestamp"

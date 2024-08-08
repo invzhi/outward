@@ -1,4 +1,4 @@
-package id
+package sqlc
 
 import (
 	"encoding/json"
@@ -20,7 +20,7 @@ func init() {
 
 type ID int64
 
-func New() ID {
+func NewID() ID {
 	id, err := sf.NextID()
 	if err != nil {
 		panic(err)

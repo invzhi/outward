@@ -7,7 +7,6 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/oklog/run"
-	"google.golang.org/grpc"
 
 	"github.com/invzhi/outward/config"
 	"github.com/invzhi/outward/internal/api"
@@ -15,13 +14,8 @@ import (
 )
 
 func httpServer(appctx *config.AppContext) (*http.Server, error) {
-	svr := grpc.NewServer()
-
-	workspaceServer := api.NewWorkspaceServer(appctx)
-	proto.RegisterWorkspaceServiceServer(svr, workspaceServer)
-
 	mux := runtime.NewServeMux()
-	err := proto.RegisterWorkspaceServiceHandlerServer(context.Background(), mux, workspaceServer)
+	err := proto.RegisterWorkspaceServiceHandlerServer(context.Background(), mux, api.NewWorkspaceServer(appctx))
 	if err != nil {
 		return nil, err
 	}
