@@ -19,7 +19,7 @@ func NewWorkspaceServer(appctx *config.AppContext) *WorkspaceServer {
 	return &WorkspaceServer{AppContext: appctx}
 }
 
-func (s *WorkspaceServer) CreateWorkspace(ctx context.Context, req *proto.CreateWorkspaceRequest) (*proto.Workspace, error) {
+func (s *WorkspaceServer) CreateWorkspace(ctx context.Context, req *proto.CreateWorkspaceRequest) (*proto.CreateWorkspaceResponse, error) {
 	workspace, err := s.Queries.CreateWorkspace(ctx, sqlc.CreateWorkspaceParams{
 		ID:     sqlc.NewID(),
 		Name:   req.Name,
@@ -29,7 +29,12 @@ func (s *WorkspaceServer) CreateWorkspace(ctx context.Context, req *proto.Create
 		return nil, err
 	}
 
-	return &proto.Workspace{Name: workspace.Name, Region: req.Region}, nil
+	return &proto.CreateWorkspaceResponse{
+		Workspace: &proto.Workspace{
+			Name:   workspace.Name,
+			Region: req.Region,
+		},
+	}, nil
 }
 
 func (s *WorkspaceServer) GetWorkspaceList(ctx context.Context, req *proto.GetWorkspaceListRequest) (*proto.GetWorkspaceListResponse, error) {

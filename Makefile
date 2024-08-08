@@ -11,7 +11,7 @@ run:
 
 .PHONY: lint
 lint:
-	golangci-lint run --fix
+	buf lint && golangci-lint run --fix
 
 .PHONY: sqlc
 sqlc:

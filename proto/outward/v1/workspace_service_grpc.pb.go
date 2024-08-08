@@ -27,7 +27,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type WorkspaceServiceClient interface {
-	CreateWorkspace(ctx context.Context, in *CreateWorkspaceRequest, opts ...grpc.CallOption) (*Workspace, error)
+	CreateWorkspace(ctx context.Context, in *CreateWorkspaceRequest, opts ...grpc.CallOption) (*CreateWorkspaceResponse, error)
 	GetWorkspaceList(ctx context.Context, in *GetWorkspaceListRequest, opts ...grpc.CallOption) (*GetWorkspaceListResponse, error)
 }
 
@@ -39,9 +39,9 @@ func NewWorkspaceServiceClient(cc grpc.ClientConnInterface) WorkspaceServiceClie
 	return &workspaceServiceClient{cc}
 }
 
-func (c *workspaceServiceClient) CreateWorkspace(ctx context.Context, in *CreateWorkspaceRequest, opts ...grpc.CallOption) (*Workspace, error) {
+func (c *workspaceServiceClient) CreateWorkspace(ctx context.Context, in *CreateWorkspaceRequest, opts ...grpc.CallOption) (*CreateWorkspaceResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Workspace)
+	out := new(CreateWorkspaceResponse)
 	err := c.cc.Invoke(ctx, WorkspaceService_CreateWorkspace_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -63,7 +63,7 @@ func (c *workspaceServiceClient) GetWorkspaceList(ctx context.Context, in *GetWo
 // All implementations must embed UnimplementedWorkspaceServiceServer
 // for forward compatibility.
 type WorkspaceServiceServer interface {
-	CreateWorkspace(context.Context, *CreateWorkspaceRequest) (*Workspace, error)
+	CreateWorkspace(context.Context, *CreateWorkspaceRequest) (*CreateWorkspaceResponse, error)
 	GetWorkspaceList(context.Context, *GetWorkspaceListRequest) (*GetWorkspaceListResponse, error)
 	mustEmbedUnimplementedWorkspaceServiceServer()
 }
@@ -75,7 +75,7 @@ type WorkspaceServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedWorkspaceServiceServer struct{}
 
-func (UnimplementedWorkspaceServiceServer) CreateWorkspace(context.Context, *CreateWorkspaceRequest) (*Workspace, error) {
+func (UnimplementedWorkspaceServiceServer) CreateWorkspace(context.Context, *CreateWorkspaceRequest) (*CreateWorkspaceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateWorkspace not implemented")
 }
 func (UnimplementedWorkspaceServiceServer) GetWorkspaceList(context.Context, *GetWorkspaceListRequest) (*GetWorkspaceListResponse, error) {

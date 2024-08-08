@@ -6,17 +6,18 @@ import "google/api/annotations.proto";
 
 option go_package = "outward/v1";
 
-service WorkspaceService {
-  rpc CreateWorkspace(CreateWorkspaceRequest) returns (CreateWorkspaceResponse) {
+service UserService {
+  rpc Login(LoginRequest) returns (LoginResponse) {
     option (google.api.http) = {
-      post: "/v1/workspaces"
+      post: "/v1/users/login"
       body: "*"
     };
   }
 
-  rpc GetWorkspaceList(GetWorkspaceListRequest) returns (GetWorkspaceListResponse) {
+  rpc Logout(LogoutRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      get: "/v1/workspaces"
+      post: "/v1/users/logout"
+      body: "*"
     };
   }
 }
