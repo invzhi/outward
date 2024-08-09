@@ -1,6 +1,6 @@
 -- name: CreateUser :one
-INSERT INTO "user" (id, email, first_name, last_name)
-VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING RETURNING *;
+INSERT INTO "user" (id, email, first_name, last_name, password_hash)
+VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING RETURNING *;
 
 -- name: GetUser :one
 SELECT *
@@ -27,12 +27,5 @@ SELECT "user".*
 FROM "user"
          JOIN "workspace_member" ON "user".id = workspace_member.user_id
 WHERE workspace_member.workspace_id = $1
+  AND (sqlc.arg(cursor)::int8 = 0 OR "user".id < sqlc.arg(cursor)::int8)
 ORDER BY "user".id DESC LIMIT $2;
-
--- name: GetWorkspaceMembersC :many
-SELECT "user".*
-FROM "user"
-         JOIN "workspace_member" ON "user".id = workspace_member.user_id
-WHERE workspace_member.workspace_id = sqlc.arg(workspace_id)
-  AND "user".id < sqlc.arg(cursor)
-ORDER BY "user".id DESC LIMIT $1;

@@ -22,8 +22,9 @@ service WorkspaceService {
 }
 
 message Workspace {
-  string name = 1;
-  string region = 2;
+  int64 id = 1;
+  string name = 2;
+  string region = 3;
 }
 
 message CreateWorkspaceRequest {
@@ -41,6 +42,6 @@ message GetWorkspaceListRequest {
 }
 
 message GetWorkspaceListResponse {
-  repeated Workspace workspaces = 1;
-  string next_page_token = 2;
+  string next_page_token = 1;
+  repeated Workspace workspaces = 2;
 }

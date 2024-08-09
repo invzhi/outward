@@ -11,13 +11,6 @@ sql:
         rename:
           ids: "IDs"
         overrides:
-          - db_type: "pg_catalog.int8"
-            go_type:
-              type: "ID"
-          - db_type: "pg_catalog.int8"
-            go_type:
-              type: "NullID"
-            nullable: true
           - db_type: "pg_catalog.timestamp"
             go_type:
               import: "time"

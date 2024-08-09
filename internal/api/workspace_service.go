@@ -7,11 +7,11 @@ import (
 
 	"github.com/invzhi/outward/config"
 	"github.com/invzhi/outward/internal/sqlc"
-	proto "github.com/invzhi/outward/proto/outward/v1"
+	pbv1 "github.com/invzhi/outward/proto/outward/v1"
 )
 
 type WorkspaceServer struct {
-	proto.UnimplementedWorkspaceServiceServer
+	pbv1.UnimplementedWorkspaceServiceServer
 	*config.AppContext
 }
 
@@ -19,7 +19,7 @@ func NewWorkspaceServer(appctx *config.AppContext) *WorkspaceServer {
 	return &WorkspaceServer{AppContext: appctx}
 }
 
-func (s *WorkspaceServer) CreateWorkspace(ctx context.Context, req *proto.CreateWorkspaceRequest) (*proto.CreateWorkspaceResponse, error) {
+func (s *WorkspaceServer) CreateWorkspace(ctx context.Context, req *pbv1.CreateWorkspaceRequest) (*pbv1.CreateWorkspaceResponse, error) {
 	workspace, err := s.Queries.CreateWorkspace(ctx, sqlc.CreateWorkspaceParams{
 		ID:     sqlc.NewID(),
 		Name:   req.Name,
@@ -29,15 +29,15 @@ func (s *WorkspaceServer) CreateWorkspace(ctx context.Context, req *proto.Create
 		return nil, err
 	}
 
-	return &proto.CreateWorkspaceResponse{
-		Workspace: &proto.Workspace{
+	return &pbv1.CreateWorkspaceResponse{
+		Workspace: &pbv1.Workspace{
 			Name:   workspace.Name,
 			Region: req.Region,
 		},
 	}, nil
 }
 
-func (s *WorkspaceServer) GetWorkspaceList(ctx context.Context, req *proto.GetWorkspaceListRequest) (*proto.GetWorkspaceListResponse, error) {
+func (s *WorkspaceServer) GetWorkspaceList(ctx context.Context, req *pbv1.GetWorkspaceListRequest) (*pbv1.GetWorkspaceListResponse, error) {
 	workspaces, err := s.Queries.GetWorkspaces(ctx, sqlc.GetWorkspacesParams{
 		UserID: 1, // TODO
 		Limit:  req.PageSize,
@@ -46,9 +46,9 @@ func (s *WorkspaceServer) GetWorkspaceList(ctx context.Context, req *proto.GetWo
 		return nil, err
 	}
 
-	return &proto.GetWorkspaceListResponse{
-		Workspaces: lo.Map(workspaces, func(workspace sqlc.Workspace, _ int) *proto.Workspace {
-			return &proto.Workspace{
+	return &pbv1.GetWorkspaceListResponse{
+		Workspaces: lo.Map(workspaces, func(workspace sqlc.Workspace, _ int) *pbv1.Workspace {
+			return &pbv1.Workspace{
 				Name:   workspace.Name,
 				Region: workspace.Region,
 			}

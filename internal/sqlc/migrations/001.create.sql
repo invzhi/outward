@@ -1,11 +1,11 @@
 CREATE TABLE "user"
 (
-    id         BIGINT    NOT NULL PRIMARY KEY,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    email      TEXT      NOT NULL,
-    first_name TEXT      NOT NULL,
-    last_name  TEXT      NOT NULL,
-    password   TEXT NULL
+    id            BIGINT    NOT NULL PRIMARY KEY,
+    created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    email         TEXT      NOT NULL,
+    first_name    TEXT      NOT NULL,
+    last_name     TEXT      NOT NULL,
+    password_hash TEXT NULL
 );
 
 CREATE UNIQUE INDEX "user_idx_email" ON "user" (email);

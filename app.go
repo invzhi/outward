@@ -14,8 +14,14 @@ import (
 )
 
 func httpServer(appctx *config.AppContext) (*http.Server, error) {
+	ctx := context.Background()
 	mux := runtime.NewServeMux()
-	err := proto.RegisterWorkspaceServiceHandlerServer(context.Background(), mux, api.NewWorkspaceServer(appctx))
+
+	err := proto.RegisterUserServiceHandlerServer(ctx, mux, api.NewUserServer(appctx))
+	if err != nil {
+		return nil, err
+	}
+	err = proto.RegisterWorkspaceServiceHandlerServer(ctx, mux, api.NewWorkspaceServer(appctx))
 	if err != nil {
 		return nil, err
 	}

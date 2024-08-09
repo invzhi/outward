@@ -11,72 +11,72 @@ import (
 )
 
 type EmailContent struct {
-	ID        ID
-	ProjectID ID
+	ID        int64
+	ProjectID int64
 	CreatedAt time.Time
 	Payload   string
 }
 
 type EmailLayout struct {
-	ID        ID
-	ProjectID ID
+	ID        int64
+	ProjectID int64
 	CreatedAt time.Time
 	Payload   string
 }
 
 type EmailTemplate struct {
-	ID        ID
-	ProjectID ID
+	ID        int64
+	ProjectID int64
 	CreatedAt time.Time
 	Payload   string
 }
 
 type EmailTemplateHistory struct {
-	ID              ID
-	EmailTemplateID ID
-	ProjectID       ID
+	ID              int64
+	EmailTemplateID int64
+	ProjectID       int64
 	CreatedAt       time.Time
 	Payload         string
 }
 
 type Environment struct {
-	ID        ID
-	ProjectID ID
+	ID        int64
+	ProjectID int64
 	CreatedAt time.Time
 	Name      string
 }
 
 type Project struct {
-	ID          ID
-	WorkspaceID ID
+	ID          int64
+	WorkspaceID int64
 	CreatedAt   time.Time
 	Name        string
 }
 
 type ProjectMember struct {
-	ProjectID ID
-	UserID    ID
+	ProjectID int64
+	UserID    int64
 	Role      string
 }
 
 type User struct {
-	ID        ID
-	CreatedAt time.Time
-	Email     string
-	FirstName string
-	LastName  string
-	Password  pgtype.Text
+	ID           int64
+	CreatedAt    time.Time
+	Email        string
+	FirstName    string
+	LastName     string
+	PasswordHash pgtype.Text
 }
 
 type Workspace struct {
-	ID        ID
+	ID        int64
 	CreatedAt time.Time
 	Name      string
 	Region    string
 }
 
 type WorkspaceMember struct {
-	WorkspaceID ID
-	UserID      ID
+	WorkspaceID int64
+	UserID      int64
 	Role        string
 }

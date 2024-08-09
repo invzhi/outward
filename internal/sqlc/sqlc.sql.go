@@ -7,18 +7,21 @@ package sqlc
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO "user" (id, email, first_name, last_name)
-VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING RETURNING id, created_at, email, first_name, last_name, password
+INSERT INTO "user" (id, email, first_name, last_name, password_hash)
+VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING RETURNING id, created_at, email, first_name, last_name, password_hash
 `
 
 type CreateUserParams struct {
-	ID        ID
-	Email     string
-	FirstName string
-	LastName  string
+	ID           int64
+	Email        string
+	FirstName    string
+	LastName     string
+	PasswordHash pgtype.Text
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -27,6 +30,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.Email,
 		arg.FirstName,
 		arg.LastName,
+		arg.PasswordHash,
 	)
 	var i User
 	err := row.Scan(
@@ -35,7 +39,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Email,
 		&i.FirstName,
 		&i.LastName,
-		&i.Password,
+		&i.PasswordHash,
 	)
 	return i, err
 }
@@ -46,7 +50,7 @@ VALUES ($1, $2, $3) ON CONFLICT DO NOTHING RETURNING id, created_at, name, regio
 `
 
 type CreateWorkspaceParams struct {
-	ID     ID
+	ID     int64
 	Name   string
 	Region string
 }
@@ -69,8 +73,8 @@ VALUES ($1, $2) ON CONFLICT DO NOTHING
 `
 
 type CreateWorkspaceMemberParams struct {
-	WorkspaceID ID
-	UserID      ID
+	WorkspaceID int64
+	UserID      int64
 }
 
 func (q *Queries) CreateWorkspaceMember(ctx context.Context, arg CreateWorkspaceMemberParams) error {
@@ -79,7 +83,7 @@ func (q *Queries) CreateWorkspaceMember(ctx context.Context, arg CreateWorkspace
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, created_at, email, first_name, last_name, password
+SELECT id, created_at, email, first_name, last_name, password_hash
 FROM "user"
 WHERE email = $1
 `
@@ -93,26 +97,28 @@ func (q *Queries) GetUser(ctx context.Context, email string) (User, error) {
 		&i.Email,
 		&i.FirstName,
 		&i.LastName,
-		&i.Password,
+		&i.PasswordHash,
 	)
 	return i, err
 }
 
 const getWorkspaceMembers = `-- name: GetWorkspaceMembers :many
-SELECT "user".id, "user".created_at, "user".email, "user".first_name, "user".last_name, "user".password
+SELECT "user".id, "user".created_at, "user".email, "user".first_name, "user".last_name, "user".password_hash
 FROM "user"
          JOIN "workspace_member" ON "user".id = workspace_member.user_id
 WHERE workspace_member.workspace_id = $1
+  AND ($3::int8 = 0 OR "user".id < $3::int8)
 ORDER BY "user".id DESC LIMIT $2
 `
 
 type GetWorkspaceMembersParams struct {
-	WorkspaceID ID
+	WorkspaceID int64
 	Limit       int32
+	Cursor      int64
 }
 
 func (q *Queries) GetWorkspaceMembers(ctx context.Context, arg GetWorkspaceMembersParams) ([]User, error) {
-	rows, err := q.db.Query(ctx, getWorkspaceMembers, arg.WorkspaceID, arg.Limit)
+	rows, err := q.db.Query(ctx, getWorkspaceMembers, arg.WorkspaceID, arg.Limit, arg.Cursor)
 	if err != nil {
 		return nil, err
 	}
@@ -126,49 +132,7 @@ func (q *Queries) GetWorkspaceMembers(ctx context.Context, arg GetWorkspaceMembe
 			&i.Email,
 			&i.FirstName,
 			&i.LastName,
-			&i.Password,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getWorkspaceMembersC = `-- name: GetWorkspaceMembersC :many
-SELECT "user".id, "user".created_at, "user".email, "user".first_name, "user".last_name, "user".password
-FROM "user"
-         JOIN "workspace_member" ON "user".id = workspace_member.user_id
-WHERE workspace_member.workspace_id = $2
-  AND "user".id < $3
-ORDER BY "user".id DESC LIMIT $1
-`
-
-type GetWorkspaceMembersCParams struct {
-	Limit       int32
-	WorkspaceID ID
-	Cursor      ID
-}
-
-func (q *Queries) GetWorkspaceMembersC(ctx context.Context, arg GetWorkspaceMembersCParams) ([]User, error) {
-	rows, err := q.db.Query(ctx, getWorkspaceMembersC, arg.Limit, arg.WorkspaceID, arg.Cursor)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []User
-	for rows.Next() {
-		var i User
-		if err := rows.Scan(
-			&i.ID,
-			&i.CreatedAt,
-			&i.Email,
-			&i.FirstName,
-			&i.LastName,
-			&i.Password,
+			&i.PasswordHash,
 		); err != nil {
 			return nil, err
 		}
@@ -189,7 +153,7 @@ ORDER BY workspace.id DESC LIMIT $2
 `
 
 type GetWorkspacesParams struct {
-	UserID ID
+	UserID int64
 	Limit  int32
 }
 
