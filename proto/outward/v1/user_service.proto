@@ -3,6 +3,7 @@ syntax = "proto3";
 package outward.v1;
 
 import "google/api/annotations.proto";
+import "buf/validate/validate.proto";
 
 option go_package = "outward/v1";
 
@@ -54,7 +55,7 @@ message CreateUserResponse {
 }
 
 message GetUserListRequest {
-  int32 page_size = 1;
+  int32 page_size = 1 [(buf.validate.field).int32.gt = 0];
   string page_token = 2;
   int64 workspace_id = 3;
 }
