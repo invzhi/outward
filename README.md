@@ -1,2 +1,3 @@
 # outward
-:flight_departure: Command center for enterprise outreach.
+
+:flight_departure: Template center for transactional emails.
