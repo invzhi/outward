@@ -16,7 +16,7 @@ SELECT workspace.*
 FROM "workspace"
          JOIN "workspace_member" ON workspace.id = workspace_member.workspace_id
 WHERE workspace_member.user_id = $1
-ORDER BY workspace.id DESC LIMIT $2;
+ORDER BY workspace.id DESC;
 
 -- name: CreateWorkspaceMember :exec
 INSERT INTO "workspace_member" (workspace_id, user_id)

@@ -38,10 +38,7 @@ func (s *WorkspaceServer) CreateWorkspace(ctx context.Context, req *pbv1.CreateW
 }
 
 func (s *WorkspaceServer) GetWorkspaceList(ctx context.Context, req *pbv1.GetWorkspaceListRequest) (*pbv1.GetWorkspaceListResponse, error) {
-	workspaces, err := s.Queries.GetWorkspaces(ctx, sqlc.GetWorkspacesParams{
-		UserID: 1, // TODO
-		Limit:  req.PageSize,
-	})
+	workspaces, err := s.Queries.GetWorkspaces(ctx, 1) // TODO
 	if err != nil {
 		return nil, err
 	}
@@ -53,6 +50,5 @@ func (s *WorkspaceServer) GetWorkspaceList(ctx context.Context, req *pbv1.GetWor
 				Region: workspace.Region,
 			}
 		}),
-		NextPageToken: "fdlf",
 	}, nil
 }

@@ -19,10 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserService_CreateUser_FullMethodName  = "/outward.v1.UserService/CreateUser"
-	UserService_GetUserList_FullMethodName = "/outward.v1.UserService/GetUserList"
-	UserService_Login_FullMethodName       = "/outward.v1.UserService/Login"
-	UserService_Logout_FullMethodName      = "/outward.v1.UserService/Logout"
+	UserService_CreateUser_FullMethodName            = "/outward.v1.UserService/CreateUser"
+	UserService_GetUserList_FullMethodName           = "/outward.v1.UserService/GetUserList"
+	UserService_CreateWorkspaceMember_FullMethodName = "/outward.v1.UserService/CreateWorkspaceMember"
+	UserService_Login_FullMethodName                 = "/outward.v1.UserService/Login"
+	UserService_Logout_FullMethodName                = "/outward.v1.UserService/Logout"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -31,6 +32,7 @@ const (
 type UserServiceClient interface {
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
 	GetUserList(ctx context.Context, in *GetUserListRequest, opts ...grpc.CallOption) (*GetUserListResponse, error)
+	CreateWorkspaceMember(ctx context.Context, in *CreateWorkspaceMemberRequest, opts ...grpc.CallOption) (*CreateWorkspaceMemberResponse, error)
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*LogoutResponse, error)
 }
@@ -63,6 +65,16 @@ func (c *userServiceClient) GetUserList(ctx context.Context, in *GetUserListRequ
 	return out, nil
 }
 
+func (c *userServiceClient) CreateWorkspaceMember(ctx context.Context, in *CreateWorkspaceMemberRequest, opts ...grpc.CallOption) (*CreateWorkspaceMemberResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateWorkspaceMemberResponse)
+	err := c.cc.Invoke(ctx, UserService_CreateWorkspaceMember_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userServiceClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(LoginResponse)
@@ -89,6 +101,7 @@ func (c *userServiceClient) Logout(ctx context.Context, in *LogoutRequest, opts 
 type UserServiceServer interface {
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
 	GetUserList(context.Context, *GetUserListRequest) (*GetUserListResponse, error)
+	CreateWorkspaceMember(context.Context, *CreateWorkspaceMemberRequest) (*CreateWorkspaceMemberResponse, error)
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	Logout(context.Context, *LogoutRequest) (*LogoutResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
@@ -106,6 +119,9 @@ func (UnimplementedUserServiceServer) CreateUser(context.Context, *CreateUserReq
 }
 func (UnimplementedUserServiceServer) GetUserList(context.Context, *GetUserListRequest) (*GetUserListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserList not implemented")
+}
+func (UnimplementedUserServiceServer) CreateWorkspaceMember(context.Context, *CreateWorkspaceMemberRequest) (*CreateWorkspaceMemberResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateWorkspaceMember not implemented")
 }
 func (UnimplementedUserServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
@@ -170,6 +186,24 @@ func _UserService_GetUserList_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_CreateWorkspaceMember_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateWorkspaceMemberRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).CreateWorkspaceMember(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_CreateWorkspaceMember_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).CreateWorkspaceMember(ctx, req.(*CreateWorkspaceMemberRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _UserService_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(LoginRequest)
 	if err := dec(in); err != nil {
@@ -220,6 +254,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserList",
 			Handler:    _UserService_GetUserList_Handler,
+		},
+		{
+			MethodName: "CreateWorkspaceMember",
+			Handler:    _UserService_CreateWorkspaceMember_Handler,
 		},
 		{
 			MethodName: "Login",

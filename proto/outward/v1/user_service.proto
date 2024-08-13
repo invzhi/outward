@@ -21,6 +21,13 @@ service UserService {
     };
   }
 
+  rpc CreateWorkspaceMember(CreateWorkspaceMemberRequest) returns (CreateWorkspaceMemberResponse) {
+    option (google.api.http) = {
+      post: "/v1/users/workspace"
+      body: "*"
+    };
+  }
+
   rpc Login(LoginRequest) returns (LoginResponse) {
     option (google.api.http) = {
       post: "/v1/users/login"
@@ -57,7 +64,7 @@ message CreateUserResponse {
 message GetUserListRequest {
   int32 page_size = 1 [(buf.validate.field).int32.gt = 0];
   string page_token = 2;
-  int64 workspace_id = 3;
+  int64 workspace_id = 3 [(buf.validate.field).int64.gt = 0];
 }
 
 message GetUserListResponse {
@@ -65,8 +72,18 @@ message GetUserListResponse {
   repeated User users = 2;
 }
 
+message CreateWorkspaceMemberRequest {
+  int64 user_id = 1 [(buf.validate.field).int64.gt = 0];
+  int64 workspace_id = 2 [(buf.validate.field).int64.gt = 0];
+}
+
+message CreateWorkspaceMemberResponse {}
+
 message LoginRequest {
-  string email = 1;
+  string email = 1 [(buf.validate.field).string = {
+    min_len: 1,
+    email: true
+  }];
   string password = 2;
 }
 

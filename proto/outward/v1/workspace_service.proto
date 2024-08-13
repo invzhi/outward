@@ -36,12 +36,8 @@ message CreateWorkspaceResponse {
   Workspace workspace = 1;
 }
 
-message GetWorkspaceListRequest {
-  int32 page_size = 1;
-  string page_token = 2;
-}
+message GetWorkspaceListRequest {}
 
 message GetWorkspaceListResponse {
-  string next_page_token = 1;
-  repeated Workspace workspaces = 2;
+  repeated Workspace workspaces = 1;
 }

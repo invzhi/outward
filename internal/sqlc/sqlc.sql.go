@@ -149,16 +149,11 @@ SELECT workspace.id, workspace.created_at, workspace.name, workspace.region
 FROM "workspace"
          JOIN "workspace_member" ON workspace.id = workspace_member.workspace_id
 WHERE workspace_member.user_id = $1
-ORDER BY workspace.id DESC LIMIT $2
+ORDER BY workspace.id DESC
 `
 
-type GetWorkspacesParams struct {
-	UserID int64
-	Limit  int32
-}
-
-func (q *Queries) GetWorkspaces(ctx context.Context, arg GetWorkspacesParams) ([]Workspace, error) {
-	rows, err := q.db.Query(ctx, getWorkspaces, arg.UserID, arg.Limit)
+func (q *Queries) GetWorkspaces(ctx context.Context, userID int64) ([]Workspace, error) {
+	rows, err := q.db.Query(ctx, getWorkspaces, userID)
 	if err != nil {
 		return nil, err
 	}

@@ -95,6 +95,14 @@ func (s *UserServer) GetUserList(ctx context.Context, req *pbv1.GetUserListReque
 	}, nil
 }
 
+func (s *UserServer) CreateWorkspaceMember(ctx context.Context, req *pbv1.CreateWorkspaceMemberRequest) (*pbv1.CreateWorkspaceMemberResponse, error) {
+	err := s.Queries.CreateWorkspaceMember(ctx, sqlc.CreateWorkspaceMemberParams{
+		WorkspaceID: req.WorkspaceId,
+		UserID:      req.UserId,
+	})
+	return &pbv1.CreateWorkspaceMemberResponse{}, err
+}
+
 func (s *UserServer) Login(ctx context.Context, req *pbv1.LoginRequest) (*pbv1.LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
