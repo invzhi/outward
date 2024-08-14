@@ -2,6 +2,8 @@ package outward
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"net/http"
 	"syscall"
 
@@ -16,6 +18,9 @@ import (
 func httpServer(appctx *config.AppContext) (*http.Server, error) {
 	opts := []connect.HandlerOption{
 		connect.WithInterceptors(api.NewLoggingInterceptor(appctx.Logger)),
+		connect.WithRecover(func(_ context.Context, _ connect.Spec, _ http.Header, r any) error {
+			return connect.NewError(connect.CodeInternal, errors.New(fmt.Sprint(r)))
+		}),
 	}
 
 	mux := http.NewServeMux()

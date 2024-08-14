@@ -18,7 +18,18 @@ func NewLoggingInterceptor(logger zerolog.Logger) connect.Interceptor {
 			ctx = logger.WithContext(ctx)
 			resp, err := next(ctx, req)
 
-			logger.Info().
+			level := zerolog.InfoLevel
+			switch connect.CodeOf(err) {
+			case connect.CodeUnknown,
+				connect.CodeDeadlineExceeded,
+				connect.CodeUnimplemented,
+				connect.CodeInternal,
+				connect.CodeUnavailable,
+				connect.CodeDataLoss:
+				level = zerolog.ErrorLevel
+			}
+
+			logger.WithLevel(level).
 				Err(err).
 				Dur("latency", time.Since(startTime)).
 				Str("procedure", req.Spec().Procedure).

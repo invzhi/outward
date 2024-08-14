@@ -21,7 +21,7 @@
 		});
 		const client = createPromiseClient(UserService, transport);
 
-		const request = new GetUserListRequest({ pageSize: 10 });
+		const request = new GetUserListRequest({ pageSize: 0 });
 
 		const response = client.getUserList(request);
 
