@@ -22,10 +22,10 @@ func NewUserService(appctx *config.AppContext) *UserService {
 	return &UserService{AppContext: appctx}
 }
 
-func (s *UserService) CreateUser(ctx context.Context, c *connect.Request[pbv1.CreateUserRequest]) (*connect.Response[pbv1.CreateUserResponse], error) {
+func (s *UserService) CreateUser(ctx context.Context, req *connect.Request[pbv1.CreateUserRequest]) (*connect.Response[pbv1.CreateUserResponse], error) {
 	var passwordHash pgtype.Text
-	if len(c.Msg.Password) > 0 {
-		hash, err := bcrypt.GenerateFromPassword([]byte(c.Msg.Password), bcrypt.DefaultCost)
+	if len(req.Msg.Password) > 0 {
+		hash, err := bcrypt.GenerateFromPassword([]byte(req.Msg.Password), bcrypt.DefaultCost)
 		if err != nil {
 			return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("cannot generate password hash: %v", err))
 		}
@@ -34,9 +34,9 @@ func (s *UserService) CreateUser(ctx context.Context, c *connect.Request[pbv1.Cr
 
 	user, err := s.Queries.CreateUser(ctx, sqlc.CreateUserParams{
 		ID:           sqlc.NewID(),
-		Email:        c.Msg.Email,
-		FirstName:    c.Msg.FirstName,
-		LastName:     c.Msg.LastName,
+		Email:        req.Msg.Email,
+		FirstName:    req.Msg.FirstName,
+		LastName:     req.Msg.LastName,
 		PasswordHash: passwordHash,
 	})
 	if err != nil {
@@ -53,13 +53,13 @@ func (s *UserService) CreateUser(ctx context.Context, c *connect.Request[pbv1.Cr
 	}), nil
 }
 
-func (s *UserService) GetUserList(ctx context.Context, c *connect.Request[pbv1.GetUserListRequest]) (*connect.Response[pbv1.GetUserListResponse], error) {
+func (s *UserService) GetUserList(ctx context.Context, req *connect.Request[pbv1.GetUserListRequest]) (*connect.Response[pbv1.GetUserListResponse], error) {
 	params := sqlc.GetWorkspaceMembersParams{
-		WorkspaceID: c.Msg.WorkspaceId,
-		Limit:       c.Msg.PageSize,
+		WorkspaceID: req.Msg.WorkspaceId,
+		Limit:       req.Msg.PageSize,
 	}
-	if len(c.Msg.PageToken) > 0 {
-		pageToken, err := ParsePageToken(c.Msg.PageToken)
+	if len(req.Msg.PageToken) > 0 {
+		pageToken, err := ParsePageToken(req.Msg.PageToken)
 		if err != nil {
 			return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid page token: %v", err))
 		}
@@ -74,8 +74,8 @@ func (s *UserService) GetUserList(ctx context.Context, c *connect.Request[pbv1.G
 	}
 
 	var nextPageToken string
-	if len(users) == int(c.Msg.PageSize) {
-		nextPageToken, err = NewPageToken(&pbv1.PageToken{PageSize: c.Msg.PageSize, Cursor: users[len(users)-1].ID})
+	if len(users) == int(req.Msg.PageSize) {
+		nextPageToken, err = NewPageToken(&pbv1.PageToken{PageSize: req.Msg.PageSize, Cursor: users[len(users)-1].ID})
 		if err != nil {
 			return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("cannot get next page token: %v", err))
 		}

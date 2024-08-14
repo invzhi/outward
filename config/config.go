@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	zerolog "github.com/jackc/pgx-zerolog"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/tracelog"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/slack-go/slack"
 
@@ -26,23 +26,27 @@ type Config struct {
 
 type AppContext struct {
 	Conf    Config
+	Logger  zerolog.Logger
 	Pool    *pgxpool.Pool
 	Queries *sqlc.Queries
 	Slack   *slack.Client
 }
 
 func NewAppContext(conf Config) (*AppContext, error) {
+	level := tracelog.LogLevelInfo
+	log.Logger.Level(zerolog.InfoLevel)
+	if conf.Debug {
+		level = tracelog.LogLevelTrace
+		log.Logger = log.Output(zerolog.NewConsoleWriter()).Level(zerolog.TraceLevel)
+	}
+
 	config, err := pgxpool.ParseConfig(conf.DatabaseURL)
 	if err != nil {
 		return nil, fmt.Errorf("cannot parse config: %w", err)
 	}
 
-	level := tracelog.LogLevelInfo
-	if conf.Debug {
-		level = tracelog.LogLevelTrace
-	}
 	config.ConnConfig.Tracer = &tracelog.TraceLog{
-		Logger:   zerolog.NewLogger(log.Logger),
+		Logger:   pgxLogAdapter{},
 		LogLevel: level,
 	}
 
@@ -53,6 +57,7 @@ func NewAppContext(conf Config) (*AppContext, error) {
 
 	appctx := AppContext{
 		Conf:    conf,
+		Logger:  log.Logger,
 		Pool:    pool,
 		Queries: sqlc.New(pool),
 		Slack: slack.New(conf.Slack.BotToken,

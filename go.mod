@@ -5,7 +5,6 @@ go 1.22
 require (
 	connectrpc.com/connect v1.16.2
 	github.com/ardanlabs/conf/v3 v3.1.8
-	github.com/jackc/pgx-zerolog v0.0.0-20230315001418-f978528409eb
 	github.com/jackc/pgx/v5 v5.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/oklog/run v1.1.0

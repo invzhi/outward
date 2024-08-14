@@ -15,6 +15,7 @@ func NewLoggingInterceptor(logger zerolog.Logger) connect.Interceptor {
 		return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
 			startTime := time.Now()
 
+			ctx = logger.WithContext(ctx)
 			resp, err := next(ctx, req)
 
 			logger.Info().

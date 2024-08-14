@@ -7,7 +7,6 @@ import (
 
 	"github.com/ardanlabs/conf/v3"
 	_ "github.com/joho/godotenv/autoload"
-	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
 	"github.com/invzhi/outward"
@@ -24,11 +23,6 @@ func main() {
 		}
 		fmt.Printf("cannot parse configuration: %s\n", err)
 		os.Exit(1)
-	}
-
-	log.Logger.Level(zerolog.InfoLevel)
-	if c.Debug {
-		log.Logger = log.Output(zerolog.NewConsoleWriter()).Level(zerolog.TraceLevel)
 	}
 
 	appctx, err := config.NewAppContext(c)

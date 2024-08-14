@@ -7,7 +7,6 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/oklog/run"
-	"github.com/rs/zerolog/log"
 
 	"github.com/invzhi/outward/config"
 	"github.com/invzhi/outward/internal/api"
@@ -16,7 +15,7 @@ import (
 
 func httpServer(appctx *config.AppContext) (*http.Server, error) {
 	opts := []connect.HandlerOption{
-		connect.WithInterceptors(api.NewLoggingInterceptor(log.Logger)),
+		connect.WithInterceptors(api.NewLoggingInterceptor(appctx.Logger)),
 	}
 
 	mux := http.NewServeMux()
