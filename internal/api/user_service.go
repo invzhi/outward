@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 
+	"connectrpc.com/connect"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/samber/lo"
 	"golang.org/x/crypto/bcrypt"
@@ -14,19 +15,18 @@ import (
 	pbv1 "github.com/invzhi/outward/proto/outward/v1"
 )
 
-type UserServer struct {
-	pbv1.UnimplementedUserServiceServer
+type UserService struct {
 	*config.AppContext
 }
 
-func NewUserServer(appctx *config.AppContext) *UserServer {
-	return &UserServer{AppContext: appctx}
+func NewUserService(appctx *config.AppContext) *UserService {
+	return &UserService{AppContext: appctx}
 }
 
-func (s *UserServer) CreateUser(ctx context.Context, req *pbv1.CreateUserRequest) (*pbv1.CreateUserResponse, error) {
+func (s *UserService) CreateUser(ctx context.Context, c *connect.Request[pbv1.CreateUserRequest]) (*connect.Response[pbv1.CreateUserResponse], error) {
 	var passwordHash pgtype.Text
-	if len(req.Password) > 0 {
-		hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if len(c.Msg.Password) > 0 {
+		hash, err := bcrypt.GenerateFromPassword([]byte(c.Msg.Password), bcrypt.DefaultCost)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "cannot generate password hash: %v", err)
 		}
@@ -35,32 +35,32 @@ func (s *UserServer) CreateUser(ctx context.Context, req *pbv1.CreateUserRequest
 
 	user, err := s.Queries.CreateUser(ctx, sqlc.CreateUserParams{
 		ID:           sqlc.NewID(),
-		Email:        req.Email,
-		FirstName:    req.FirstName,
-		LastName:     req.LastName,
+		Email:        c.Msg.Email,
+		FirstName:    c.Msg.FirstName,
+		LastName:     c.Msg.LastName,
 		PasswordHash: passwordHash,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return &pbv1.CreateUserResponse{
+	return connect.NewResponse(&pbv1.CreateUserResponse{
 		User: &pbv1.User{
 			Id:        user.ID,
 			Email:     user.Email,
 			FirstName: user.FirstName,
 			LastName:  user.LastName,
 		},
-	}, nil
+	}), nil
 }
 
-func (s *UserServer) GetUserList(ctx context.Context, req *pbv1.GetUserListRequest) (*pbv1.GetUserListResponse, error) {
+func (s *UserService) GetUserList(ctx context.Context, c *connect.Request[pbv1.GetUserListRequest]) (*connect.Response[pbv1.GetUserListResponse], error) {
 	params := sqlc.GetWorkspaceMembersParams{
-		WorkspaceID: req.WorkspaceId,
-		Limit:       req.PageSize,
+		WorkspaceID: c.Msg.WorkspaceId,
+		Limit:       c.Msg.PageSize,
 	}
-	if len(req.PageToken) > 0 {
-		pageToken, err := ParsePageToken(req.PageToken)
+	if len(c.Msg.PageToken) > 0 {
+		pageToken, err := ParsePageToken(c.Msg.PageToken)
 		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "invalid page token: %v", err)
 		}
@@ -75,14 +75,14 @@ func (s *UserServer) GetUserList(ctx context.Context, req *pbv1.GetUserListReque
 	}
 
 	var nextPageToken string
-	if len(users) == int(req.PageSize) {
-		nextPageToken, err = NewPageToken(&pbv1.PageToken{PageSize: req.PageSize, Cursor: users[len(users)-1].ID})
+	if len(users) == int(c.Msg.PageSize) {
+		nextPageToken, err = NewPageToken(&pbv1.PageToken{PageSize: c.Msg.PageSize, Cursor: users[len(users)-1].ID})
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "cannot get next page token: %v", err)
 		}
 	}
 
-	return &pbv1.GetUserListResponse{
+	return connect.NewResponse(&pbv1.GetUserListResponse{
 		NextPageToken: nextPageToken,
 		Users: lo.Map(users, func(user sqlc.User, _ int) *pbv1.User {
 			return &pbv1.User{
@@ -92,22 +92,24 @@ func (s *UserServer) GetUserList(ctx context.Context, req *pbv1.GetUserListReque
 				LastName:  user.LastName,
 			}
 		}),
-	}, nil
+	}), nil
 }
 
-func (s *UserServer) CreateWorkspaceMember(ctx context.Context, req *pbv1.CreateWorkspaceMemberRequest) (*pbv1.CreateWorkspaceMemberResponse, error) {
+func (s *UserService) CreateWorkspaceMember(ctx context.Context, c *connect.Request[pbv1.CreateWorkspaceMemberRequest]) (*connect.Response[pbv1.CreateWorkspaceMemberResponse], error) {
 	err := s.Queries.CreateWorkspaceMember(ctx, sqlc.CreateWorkspaceMemberParams{
-		WorkspaceID: req.WorkspaceId,
-		UserID:      req.UserId,
-		Role:        int32(req.Role),
+		WorkspaceID: c.Msg.WorkspaceId,
+		UserID:      c.Msg.UserId,
+		Role:        int32(c.Msg.Role),
 	})
-	return &pbv1.CreateWorkspaceMemberResponse{}, err
+	return connect.NewResponse(&pbv1.CreateWorkspaceMemberResponse{}), err
 }
 
-func (s *UserServer) Login(ctx context.Context, req *pbv1.LoginRequest) (*pbv1.LoginResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
+func (s *UserService) Login(ctx context.Context, c *connect.Request[pbv1.LoginRequest]) (*connect.Response[pbv1.LoginResponse], error) {
+	// TODO implement me
+	panic("implement me")
 }
 
-func (s *UserServer) Logout(ctx context.Context, req *pbv1.LogoutRequest) (*pbv1.LogoutResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Logout not implemented")
+func (s *UserService) Logout(ctx context.Context, c *connect.Request[pbv1.LogoutRequest]) (*connect.Response[pbv1.LogoutResponse], error) {
+	// TODO implement me
+	panic("implement me")
 }

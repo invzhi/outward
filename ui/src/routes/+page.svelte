@@ -1,7 +1,32 @@
 <script>
+	import { UserService } from '$lib/proto/outward/v1/user_service_connect';
+	import { createPromiseClient } from '@connectrpc/connect';
+	import { createConnectTransport } from '@connectrpc/connect-web';
+
 	import Counter from './Counter.svelte';
 	import welcome from '$lib/images/svelte-welcome.webp';
 	import welcome_fallback from '$lib/images/svelte-welcome.png';
+	import { GetUserListRequest } from '$lib/proto/outward/v1/user_service_pb';
+	import { onMount } from 'svelte';
+
+	onMount(() => {
+		const transport = createConnectTransport({
+			baseUrl: '/',
+			// We pass `fetch` provided by Svelte to the Transport. The function
+			// behaves the same as native fetch(), but it inherits cookies, and
+			// it can make relative requests, so you don't have to specify an
+			// absolute baseUrl.
+			// For more information, see https://kit.svelte.dev/docs/load#making-fetch-requests
+			fetch
+		});
+		const client = createPromiseClient(UserService, transport);
+
+		const request = new GetUserListRequest({ pageSize: 10 });
+
+		const response = client.getUserList(request);
+
+		console.log(response);
+	});
 </script>
 
 <svelte:head>

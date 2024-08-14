@@ -2,45 +2,18 @@ syntax = "proto3";
 
 package outward.v1;
 
-import "google/api/annotations.proto";
-import "buf/validate/validate.proto";
-
-option go_package = "outward/v1";
+option go_package = "github.com/invzhi/outward/proto/outward/v1";
 
 service UserService {
-  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
-    option (google.api.http) = {
-      post: "/v1/users"
-      body: "*"
-    };
-  }
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {}
 
-  rpc GetUserList(GetUserListRequest) returns (GetUserListResponse) {
-    option (google.api.http) = {
-      get: "/v1/users"
-    };
-  }
+  rpc GetUserList(GetUserListRequest) returns (GetUserListResponse) {}
 
-  rpc CreateWorkspaceMember(CreateWorkspaceMemberRequest) returns (CreateWorkspaceMemberResponse) {
-    option (google.api.http) = {
-      post: "/v1/users/workspaces"
-      body: "*"
-    };
-  }
+  rpc CreateWorkspaceMember(CreateWorkspaceMemberRequest) returns (CreateWorkspaceMemberResponse) {}
 
-  rpc Login(LoginRequest) returns (LoginResponse) {
-    option (google.api.http) = {
-      post: "/v1/users/login"
-      body: "*"
-    };
-  }
+  rpc Login(LoginRequest) returns (LoginResponse) {}
 
-  rpc Logout(LogoutRequest) returns (LogoutResponse) {
-    option (google.api.http) = {
-      post: "/v1/users/logout"
-      body: "*"
-    };
-  }
+  rpc Logout(LogoutRequest) returns (LogoutResponse) {}
 }
 
 message User {
@@ -62,9 +35,9 @@ message CreateUserResponse {
 }
 
 message GetUserListRequest {
-  int32 page_size = 1 [(buf.validate.field).int32.gt = 0];
+  int32 page_size = 1;
   string page_token = 2;
-  int64 workspace_id = 3 [(buf.validate.field).int64.gt = 0];
+  int64 workspace_id = 3;
 }
 
 message GetUserListResponse {
@@ -78,18 +51,15 @@ enum WorkspaceRole {
 }
 
 message CreateWorkspaceMemberRequest {
-  int64 user_id = 1 [(buf.validate.field).int64.gt = 0];
-  int64 workspace_id = 2 [(buf.validate.field).int64.gt = 0];
+  int64 user_id = 1;
+  int64 workspace_id = 2;
   WorkspaceRole role = 3;
 }
 
 message CreateWorkspaceMemberResponse {}
 
 message LoginRequest {
-  string email = 1 [(buf.validate.field).string = {
-    min_len: 1,
-    email: true
-  }];
+  string email = 1;
   string password = 2;
 }
 

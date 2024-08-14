@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package outward.v1;
 
-option go_package = "outward/v1";
+option go_package = "github.com/invzhi/outward/proto/outward/v1";
 
 message PageToken {
   int32 page_size = 1;
