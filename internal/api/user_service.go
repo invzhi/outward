@@ -2,13 +2,12 @@ package api
 
 import (
 	"context"
+	"fmt"
 
 	"connectrpc.com/connect"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/samber/lo"
 	"golang.org/x/crypto/bcrypt"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
 	"github.com/invzhi/outward/config"
 	"github.com/invzhi/outward/internal/sqlc"
@@ -28,7 +27,7 @@ func (s *UserService) CreateUser(ctx context.Context, c *connect.Request[pbv1.Cr
 	if len(c.Msg.Password) > 0 {
 		hash, err := bcrypt.GenerateFromPassword([]byte(c.Msg.Password), bcrypt.DefaultCost)
 		if err != nil {
-			return nil, status.Errorf(codes.Internal, "cannot generate password hash: %v", err)
+			return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("cannot generate password hash: %v", err))
 		}
 		passwordHash = pgtype.Text{String: string(hash), Valid: true}
 	}
@@ -62,7 +61,7 @@ func (s *UserService) GetUserList(ctx context.Context, c *connect.Request[pbv1.G
 	if len(c.Msg.PageToken) > 0 {
 		pageToken, err := ParsePageToken(c.Msg.PageToken)
 		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "invalid page token: %v", err)
+			return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid page token: %v", err))
 		}
 
 		params.Limit = pageToken.PageSize
@@ -71,14 +70,14 @@ func (s *UserService) GetUserList(ctx context.Context, c *connect.Request[pbv1.G
 
 	users, err := s.Queries.GetWorkspaceMembers(ctx, params)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "cannot get workspace members: %v", err)
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("cannot get workspace members: %v", err))
 	}
 
 	var nextPageToken string
 	if len(users) == int(c.Msg.PageSize) {
 		nextPageToken, err = NewPageToken(&pbv1.PageToken{PageSize: c.Msg.PageSize, Cursor: users[len(users)-1].ID})
 		if err != nil {
-			return nil, status.Errorf(codes.Internal, "cannot get next page token: %v", err)
+			return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("cannot get next page token: %v", err))
 		}
 	}
 

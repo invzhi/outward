@@ -5,7 +5,9 @@ import (
 	"net/http"
 	"syscall"
 
+	"connectrpc.com/connect"
 	"github.com/oklog/run"
+	"github.com/rs/zerolog/log"
 
 	"github.com/invzhi/outward/config"
 	"github.com/invzhi/outward/internal/api"
@@ -13,10 +15,13 @@ import (
 )
 
 func httpServer(appctx *config.AppContext) (*http.Server, error) {
-	mux := http.NewServeMux()
+	opts := []connect.HandlerOption{
+		connect.WithInterceptors(api.NewLoggingInterceptor(log.Logger)),
+	}
 
-	mux.Handle(v1connect.NewUserServiceHandler(api.NewUserService(appctx)))
-	mux.Handle(v1connect.NewWorkspaceServiceHandler(api.NewWorkspaceService(appctx)))
+	mux := http.NewServeMux()
+	mux.Handle(v1connect.NewUserServiceHandler(api.NewUserService(appctx), opts...))
+	mux.Handle(v1connect.NewWorkspaceServiceHandler(api.NewWorkspaceService(appctx), opts...))
 
 	return &http.Server{Addr: appctx.Conf.Address, Handler: mux}, nil
 }
